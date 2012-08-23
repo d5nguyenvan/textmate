@@ -301,7 +301,9 @@ private:
 - (void)takeSpellingLanguageFrom:(id)sender
 {
 	[[NSSpellChecker sharedSpellChecker] setLanguage:[sender representedObject]];
-	document->buffer().set_spelling_language(to_s((NSString*)[sender representedObject]));
+	std::string const language = to_s((NSString*)[sender representedObject]);
+	document->buffer().set_spelling_language(language);
+	settings_t::set(kSettingsSpellingLanguageKey, language, NULL_STR, document->path());
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem*)aMenuItem

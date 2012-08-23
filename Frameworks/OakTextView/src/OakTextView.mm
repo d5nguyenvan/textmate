@@ -1702,6 +1702,8 @@ static void update_menu_key_equivalents (NSMenu* menu, action_to_key_t const& ac
 - (void)setTheme:(theme_ptr const&)newTheme
 {
 	theme = newTheme;
+	if(theme)
+		settings_t::set(kSettingsThemeKey, theme->uuid());
 
 	if(document)
 	{
@@ -1725,6 +1727,9 @@ static void update_menu_key_equivalents (NSMenu* menu, action_to_key_t const& ac
 	fontName = to_s([newFont fontName]);
 	fontSize = [newFont pointSize];
 
+	settings_t::set(kSettingsFontNameKey, fontName);
+	settings_t::set(kSettingsFontSizeKey, fontSize);
+
 	if(layout)
 	{
 		AUTO_REFRESH;
@@ -1736,12 +1741,16 @@ static void update_menu_key_equivalents (NSMenu* menu, action_to_key_t const& ac
 {
 	AUTO_REFRESH;
 	if(document)
+	{
 		document->buffer().indent().set_tab_size(newTabSize);
+		settings_t::set(kSettingsTabSizeKey, newTabSize, document->file_type());
+	}
 }
 
 - (void)setShowInvisibles:(BOOL)flag
 {
 	showInvisibles = flag;
+	settings_t::set(kSettingsShowInvisiblesKey, (bool)showInvisibles);
 	[self setNeedsDisplay:YES];
 }
 
@@ -1751,13 +1760,17 @@ static void update_menu_key_equivalents (NSMenu* menu, action_to_key_t const& ac
 	{
 		AUTO_REFRESH;
 		layout->set_wrapping(flag, wrapColumn);
+		settings_t::set(kSettingsSoftWrapKey, (bool)flag, document->file_type());
 	}
 }
 
 - (void)setSoftTabs:(BOOL)flag
 {
 	if(flag != self.softTabs)
+	{
 		document->buffer().indent().set_soft_tabs(flag);
+		settings_t::set(kSettingsSoftTabsKey, (bool)flag, document->file_type());
+	}
 }
 
 - (void)takeWrapColumnFrom:(id)sender
@@ -1771,6 +1784,7 @@ static void update_menu_key_equivalents (NSMenu* menu, action_to_key_t const& ac
 	// 	;
 
 	wrapColumn = [sender tag];
+	settings_t::set(kSettingsWrapColumnKey, wrapColumn, document->file_type());
 	if(layout)
 	{
 		AUTO_REFRESH;
